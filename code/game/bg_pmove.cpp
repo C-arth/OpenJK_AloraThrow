@@ -9622,6 +9622,7 @@ void PM_SetSaberMove(saberMoveName_t newMove)
 		case LS_SPINATTACK_ALORA:
 		case LS_SPINATTACK_DUAL:
 		case LS_SPINATTACK:
+		case LS_SPINTHROW: // SpinThrowNewMove
 		case LS_A1_SPECIAL:
 		case LS_A2_SPECIAL:
 		case LS_A3_SPECIAL:
