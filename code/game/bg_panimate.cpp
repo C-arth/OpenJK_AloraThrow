@@ -197,6 +197,7 @@ saberMoveData_t	saberMoveData[LS_MOVE_MAX] = {//							NB:randomized
 	{"pullatkstab",	BOTH_PULL_IMPALE_STAB,Q_R,	Q_R,	AFLAG_ACTIVE,	100,	BLK_TIGHT,	LS_READY,		LS_READY,		200},	// LS_PULL_ATTACK_STAB
 	{"pullatkswing",BOTH_PULL_IMPALE_SWING,Q_R,	Q_R,	AFLAG_ACTIVE,	100,	BLK_TIGHT,	LS_READY,		LS_READY,		200},	// LS_PULL_ATTACK_SWING
 	{"AloraSpinAtk",BOTH_ALORA_SPIN_SLASH,Q_R,	Q_R,	AFLAG_ACTIVE,	100,	BLK_TIGHT,	LS_READY,		LS_READY,		200	},	// LS_SPINATTACK_ALORA
+	{"SpinThrow",BOTH_ALORA_SPIN_THROW,Q_R,	Q_R,	AFLAG_ACTIVE,	100,	BLK_TIGHT,	LS_READY,		LS_READY,		200	},	// LS_SPINTHROW SpinThrowNewMove
 	{"Dual FB Atk",	BOTH_A6_FB,			Q_R,	Q_R,	AFLAG_ACTIVE,	100,	BLK_TIGHT,	LS_READY,		LS_READY,		200	},	// LS_DUAL_FB
 	{"Dual LR Atk",	BOTH_A6_LR,			Q_R,	Q_R,	AFLAG_ACTIVE,	100,	BLK_TIGHT,	LS_READY,		LS_READY,		200 },	// LS_DUAL_LR
 	{"StfHiltBash",	BOTH_A7_HILT,		Q_R,	Q_R,	AFLAG_ACTIVE,	100,	BLK_TIGHT,	LS_READY,		LS_READY,		200	},	// LS_HILT_BASH
@@ -895,6 +896,17 @@ int PM_PowerLevelForSaberAnim( playerState_t *ps, int saberNum )
 		}
 		return FORCE_LEVEL_3;
 		break;
+	case BOTH_ALORA_SPIN_THROW:
+		if ( ps->torsoAnimTimer < 900 )
+		{//end of anim SpinThrowNewMove
+			return FORCE_LEVEL_0;
+		}
+		else if ( animTimeElapsed < 250 )
+		{//beginning of anim
+			return FORCE_LEVEL_0;
+		}
+		return FORCE_LEVEL_3;
+		break;
 	case BOTH_A6_FB:
 		if ( ps->torsoAnimTimer < 250 )
 		{//end of anim
@@ -1110,6 +1122,7 @@ qboolean PM_InAnimForSaberMove( int anim, int saberMove )
 	case BOTH_A1_SPECIAL:
 	case BOTH_A2_SPECIAL:
 	case BOTH_A3_SPECIAL:
+	case BOTH_ALORA_SPIN_THROW: // SpinThrowNewMove
 	case BOTH_FLIP_ATTACK7:
 	case BOTH_PULL_IMPALE_STAB:
 	case BOTH_PULL_IMPALE_SWING:
@@ -1260,6 +1273,7 @@ qboolean PM_SaberInSpecialAttack( int anim )
 	case BOTH_PULL_IMPALE_STAB:
 	case BOTH_PULL_IMPALE_SWING:
 	case BOTH_ALORA_SPIN_SLASH:
+	case BOTH_ALORA_SPIN_THROW: // SpinThrowNewMove
 	case BOTH_A6_FB:
 	case BOTH_A6_LR:
 	case BOTH_A7_HILT:
@@ -1351,6 +1365,7 @@ qboolean PM_SaberInAttack( int move )
 	case LS_PULL_ATTACK_STAB:
 	case LS_PULL_ATTACK_SWING:
 	case LS_SPINATTACK_ALORA:
+	case LS_SPINTHROW: // SpinThrowNewMove
 	case LS_DUAL_FB:
 	case LS_DUAL_LR:
 	case LS_HILT_BASH:
@@ -1508,6 +1523,7 @@ qboolean PM_SaberInSpecial( int move )
 	case LS_PULL_ATTACK_STAB:
 	case LS_PULL_ATTACK_SWING:
 	case LS_SPINATTACK_ALORA:
+	case LS_SPINTHROW: // SpinThrowNewMove
 	case LS_DUAL_FB:
 	case LS_DUAL_LR:
 	case LS_HILT_BASH:
@@ -1561,6 +1577,7 @@ qboolean PM_SaberCanInterruptMove( int move, int anim )
 		case LS_A_BACKFLIP_ATK:
 		case LS_SPINATTACK_DUAL:
 		case LS_SPINATTACK:
+		case LS_SPINTHROW: // SpinThrowNewMove
 		case LS_LEAP_ATTACK:
 		case LS_SWOOP_ATTACK_RIGHT:
 		case LS_SWOOP_ATTACK_LEFT:
@@ -1664,6 +1681,7 @@ qboolean PM_SaberCanInterruptMove( int move, int anim )
 	case BOTH_PULL_IMPALE_STAB:
 	case BOTH_PULL_IMPALE_SWING:
 	case BOTH_ALORA_SPIN_SLASH:
+	case LS_SPINTHROW: // SpinThrowNewMove
 	case BOTH_A6_FB:
 	case BOTH_A6_LR:
 	case BOTH_A7_HILT:
@@ -7214,6 +7232,18 @@ qboolean PM_SaberInKata( saberMoveName_t saberMove )
 	case LS_A3_SPECIAL:
 	case LS_DUAL_SPIN_PROTECT:
 	case LS_STAFF_SOULCAL:
+		return qtrue;
+	default:
+		break;
+	}
+	return qfalse;
+}
+
+qboolean PM_SpinThrow( saberMoveName_t saberMove ) // SpinThrowNewMove
+{
+	switch ( saberMove )
+	{
+	case BOTH_ALORA_SPIN_THROW:
 		return qtrue;
 	default:
 		break;
