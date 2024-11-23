@@ -7251,6 +7251,72 @@ qboolean PM_SpinThrow( saberMoveName_t saberMove ) // SpinThrowNewMove
 	return qfalse;
 }
 
+saberMoveName_t PM_CheckSpinThrow( void )
+{
+	if ( pm->ps->clientNum < MAX_CLIENTS
+		&& PM_InSecondaryStyle() )
+	{
+		return LS_NONE;
+	}
+
+	//see if we have an overridden (or cancelled) kata move
+	if ( pm->ps->saber[0].spinThrow != LS_INVALID )
+	{
+		if ( pm->ps->saber[0].spinThrow != LS_NONE )
+		{
+			return (saberMoveName_t)pm->ps->saber[0].spinThrow;
+		}
+	}
+	if ( pm->ps->dualSabers )
+	{
+		if ( pm->ps->saber[1].spinThrow != LS_INVALID )
+		{
+			if ( pm->ps->saber[1].spinThrow != LS_NONE )
+			{
+				return (saberMoveName_t)pm->ps->saber[1].spinThrow;
+			}
+		}
+	}
+	//no overrides, cancelled?
+	if ( pm->ps->saber[0].spinThrow == LS_NONE )
+	{
+		return LS_NONE;
+	}
+	if ( pm->ps->dualSabers )
+	{
+		if ( pm->ps->saber[1].spinThrow == LS_NONE )
+		{
+			return LS_NONE;
+		}
+	}
+	//do normal checks
+	if ( pm->ps->saberMove == LS_READY//ready
+		//&& (pm->ps->clientNum < MAX_CLIENTS||PM_ControlledByPlayer())//PLAYER ONLY...?
+		//&& pm->ps->viewangles[0] > 30 //looking down
+		&& pm->ps->saberAnimLevel == SS_DUAL//using dual saber style
+		&& pm->ps->saber[0].Active() && pm->ps->saber[1].Active()//both sabers on
+		//&& pm->ps->forcePowerLevel[FP_PUSH]>=FORCE_LEVEL_3//force push 3
+		//&& ((pm->ps->forcePowersActive&(1<<FP_PUSH))||pm->ps->forcePowerDebounce[FP_PUSH]>level.time)//force-pushing
+		&& G_EnoughPowerForSpecialMove( pm->ps->forcePower, SABER_ALT_ATTACK_POWER, qtrue )//pm->ps->forcePower >= SABER_ALT_ATTACK_POWER//DUAL_SPIN_PROTECT_POWER//force push 3
+		&& (pm->cmd.buttons&BUTTON_USE)
+		&& (pm->cmd.buttons&BUTTON_ALT_ATTACK)//pressing attack
+		)
+	{//FIXME: some NPC logic to do this?
+		/*
+		if ( (pm->ps->pm_flags&PMF_DUCKED||pm->cmd.upmove<0)//crouching
+			&& g_crosshairEntNum >= ENTITYNUM_WORLD )
+		*/
+		{
+			if ( pm->gent )
+			{
+				G_DrainPowerForSpecialMove( pm->gent, FP_PUSH, SABER_ALT_ATTACK_POWER, qtrue );//drain the required force power
+			}
+			return LS_SPINTHROW;
+		}
+	}
+	return LS_NONE;
+}
+
 qboolean PM_CanRollFromSoulCal( playerState_t *ps )
 {
 	if ( ps->legsAnim == BOTH_A7_SOULCAL
